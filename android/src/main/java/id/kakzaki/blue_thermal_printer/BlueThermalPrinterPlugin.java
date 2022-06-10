@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -258,16 +259,53 @@ public class BlueThermalPrinterPlugin implements FlutterPlugin, ActivityAware,Me
         }
         break;
 
-      case "openSettings":
-        ContextCompat.startActivity(context, new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS),
-                null);
-        result.success(true);
-        break;
-
       case "getBondedDevices":
         try {
+          final String[] BLE_PERMISSIONS = new String[]{
+                  Manifest.permission.ACCESS_COARSE_LOCATION,
+                  Manifest.permission.ACCESS_FINE_LOCATION,
+          };
 
-          if (ContextCompat.checkSelfPermission(activity,
+          final String[] ANDROID_12_BLE_PERMISSIONS = new String[]{
+                  Manifest.permission.BLUETOOTH_SCAN,
+                  Manifest.permission.BLUETOOTH_CONNECT,
+                  Manifest.permission.ACCESS_FINE_LOCATION,
+          };
+
+          if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+            if (context.checkSelfPermission(
+                    Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+                    context.checkSelfPermission(
+                            Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                    context.checkSelfPermission(
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+              activity.requestPermissions(ANDROID_12_BLE_PERMISSIONS, 1);
+//              ActivityCompat.requestPermissions(activity,
+//                      ANDROID_12_BLE_PERMISSIONS, 1);
+
+              pendingResult = result;
+              break;
+            }
+          } else {
+
+            if (context.checkSelfPermission(
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    context.checkSelfPermission(
+                            Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+              activity.requestPermissions(BLE_PERMISSIONS, REQUEST_COARSE_LOCATION_PERMISSIONS);
+
+//              ActivityCompat.requestPermissions(activity,
+//                      BLE_PERMISSIONS, REQUEST_COARSE_LOCATION_PERMISSIONS);
+
+              pendingResult = result;
+              break;
+            }
+          }
+          //Original code to request permissions
+          /*if (context.checkSelfPermission(
                   Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(activity,
@@ -275,7 +313,7 @@ public class BlueThermalPrinterPlugin implements FlutterPlugin, ActivityAware,Me
 
             pendingResult = result;
             break;
-          }
+          }*/
 
           getBondedDevices(result);
 
@@ -345,7 +383,7 @@ public class BlueThermalPrinterPlugin implements FlutterPlugin, ActivityAware,Me
         }
         break;
 
-        case "printImageBytes":
+      case "printImageBytes":
         if (arguments.containsKey("bytes")) {
           byte[] bytes = (byte[]) arguments.get("bytes");
           printImageBytes(result, bytes);

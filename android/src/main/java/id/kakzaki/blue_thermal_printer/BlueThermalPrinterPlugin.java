@@ -267,17 +267,18 @@ public class BlueThermalPrinterPlugin implements FlutterPlugin, ActivityAware,Me
             };
 
             final String[] ANDROID_12_BLE_PERMISSIONS = new String[]{
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
+//                    Manifest.permission.BLUETOOTH_SCAN,
+//                    Manifest.permission.BLUETOOTH_CONNECT,
                     Manifest.permission.ACCESS_FINE_LOCATION,
             };
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if(Build.VERSION.SDK_INT >= 31) {
 
-                if (ContextCompat.checkSelfPermission(activity,
-                        Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
-                        ContextCompat.checkSelfPermission(activity,
-                                Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                if (
+//                        ContextCompat.checkSelfPermission(activity,
+//                        Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+//                        ContextCompat.checkSelfPermission(activity,
+//                                Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
                         ContextCompat.checkSelfPermission(activity,
                                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
